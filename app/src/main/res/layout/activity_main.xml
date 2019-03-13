@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <!--To view the Selected image -->
+
+   <ImageView
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_centerHorizontal="true"
+       android:layout_marginTop="110dp"
+       android:id = "@+id/imageview"
+       android:visibility="gone"/>
+
+    <!-- give a name to image -->
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/imageview"
+        android:hint="Enter a name"
+        android:layout_marginTop="20dp"
+        android:id="@id/name"
+        android:visibility="gone"
+        />
+
+    <!--choose a image -->
+    <Button
+        android:id="@+id/chooseBn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/name"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="55dp"
+        android:text="Choose Image" />
+
+    <Button
+        android:id="@+id/capture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="105dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/name"
+        android:text="Capture Image" />
+
+    <!--upload image to server -->
+    <Button
+        android:id="@+id/uploadBn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/chooseBn"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="55dp"
+        android:text="Upload Image" />
+</RelativeLayout>
