@@ -1,10 +1,12 @@
 package com.example.attendance;
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.StrictMode;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -41,6 +43,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     String currentImagePath = null;
 
+    /***************/
+    private static final String CSRF_PREFERENCE_KEY = "csrf_token";
+
+//    protected static AsyncHttpClient client = new AsyncHttpClient();
+    private static PersistentCookieStore cookieStore;
+    private static SharedPreferences preferences;
+    private static String csrfToken;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             case R.id.uploadBn:
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-                loopjRequest();
+                post("test");
             break;
         }
     }
@@ -165,16 +175,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String imagePath = "/storage/emulated/0/DCIM/Camera/IMG_20190315_151357.jpg";
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
-//        params.put("text", "some string");
-        params.put("username", "admin");
-        params.put("pass", "anallstar");
-        try {
-            params.put("image", new File(imagePath));
-        }catch (Exception e){
-            Log.d("loopjTag", "Exception!!\n"+e.getMessage() );
-        }
+//        cookieStore = new PersistentCookieStore(MainActivity.this);
+//        client.setCookieStore(cookieStore);
+//
+//        preferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+//        csrfToken = preferences.getString(CSRF_PREFERENCE_KEY, null);
+//        client.addHeader("X-CSRFToken", csrfToken);
 
-        client.post("http://www.youtube.com", params, new TextHttpResponseHandler() {
+
+//        params.put("text", "some string");
+//        params.put("username", "admin");
+//        params.put("pass", "anallstar");
+////        try {
+////            params.put("image", new File(imagePath));
+////        }catch (Exception e){
+////            Log.d("loopjTag", "Exception!!\n"+e.getMessage() );
+////        }
+
+        client.get("http://192.168.43.53:8383/token", params, new TextHttpResponseHandler() {
             @Override
             public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, String responseString, Throwable throwable) {
                 Log.d("loopjTag", "Failed!!!!!!\n" + responseString);
@@ -182,7 +200,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, String responseString) {
-                Log.d("loopjTag", "Success!!!!!\n" + responseString);
+
+                Log.d("loopjTagGet", "Success!!!!!\n");
+                csrfToken = responseString;
+                post(csrfToken);
+
             }
         });
     }
@@ -214,6 +236,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // called when request is retried
                 Log.d("loopjReq2Method","Retrying!!");
 
+            }
+        });
+    }
+
+    public void post(String csrfToken){
+        String imagePath = "/storage/emulated/0/DCIM/Camera/IMG_20190315_151357.jpg";
+        AsyncHttpClient client = new AsyncHttpClient();
+        RequestParams params = new RequestParams();
+//        client.addHeader("X-CSRFToken", csrfToken);
+        try {
+            params.put("image", new File(imagePath));
+        }catch (Exception e){
+            Log.d("loopjTag", "Exception!!\n"+e.getMessage() );
+       }
+       params.add("key","hush!It$ a seCreT");
+//        params.put("csrfmiddlewaretoken","uUQp3O4sc621d0f5CxsazKUBFxAjCOWvGNRvwlF1HqW7b2IzqugIShxxf57JWgBh");
+        client.post("http://192.168.1.119:8383/attendance/android", params, new TextHttpResponseHandler() {
+            @Override
+            public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, String responseString, Throwable throwable) {
+                Log.d("loopjTagPost", "Failed!!!!!!\n" + responseString);
+            }
+
+            @Override
+            public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, String responseString) {
+                Log.d("loopjTagPost", "Success!!!!!\n" + responseString);
             }
         });
     }
