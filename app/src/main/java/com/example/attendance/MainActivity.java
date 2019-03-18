@@ -1,33 +1,43 @@
 package com.example.attendance;
-
+import android.Manifest;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+
+import com.loopj.android.http.RequestParams;
+import com.loopj.android.http.SyncHttpClient;
+import com.loopj.android.http.TextHttpResponseHandler;
+import com.loopj.android.http.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import cz.msebera.android.httpclient.entity.mime.Header;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
-    private static final int IMG_REQUEST = 1;
+    private static final int IMG_REQUEST = 2;
     private Button UploadBn,ChooseBn;
-   private Button Capture;
+    private Button Capture;
     private EditText NAME;
     private ImageView imgview;
     private Bitmap bitmap;
-    private static final int CAM_REQUEST =2;
+    private static final int CAM_REQUEST = 1;
 
     String currentImagePath = null;
 
@@ -45,8 +55,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         ChooseBn.setOnClickListener(this);
         UploadBn.setOnClickListener(this);
-       Capture.setOnClickListener(this);
+        Capture.setOnClickListener(this);
 
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+
+        StrictMode.setThreadPolicy(policy);
 
     }
 
@@ -60,6 +73,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
            case R.id.capture: captureImage();
            break;
+
+            case R.id.uploadBn:
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+                loopjRequest();
+            break;
         }
     }
    //Select image from Gallery
@@ -92,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Uri imageUri = FileProvider.getUriForFile(this,"com.example.android.fileprovider",imageFile);
                 cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT,imageUri);
                 startActivityForResult(cameraIntent,CAM_REQUEST);
+                //startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             }
         }
     }
@@ -99,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private File getImageFile() throws IOException
     {
         String time = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageName = "jpg_" +time+ "_";
+        String imageName = "jpg_" + time+ "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
         File imageFile = File.createTempFile(imageName,".jpg",storageDir);
@@ -107,10 +126,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return imageFile;
     }
 
-}
+
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if(resultCode== RESULT_OK) {
@@ -126,12 +145,78 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            } else if (requestCode == CAM_REQUEST) {
-                Bitmap bitmap = (Bitmap)data.getExtras().get("data");
-                imgview.setImageBitmap(bitmap);
-
             }
+            else if(requestCode == CAM_REQUEST) {
+                try {
+                    Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+                    imgview.setImageBitmap(bitmap);
+                }catch (NullPointerException e){
+                    Log.d("!!!!","ee code dengingi");
+                }
+            }
+
+            else{}
         }
     }
+
+    public void loopjRequest(){
+//      String path = Environment.getExternalStorageDirectory().getPath();
+//      String imagePath = path + "/Download/dog-best-friend-1.jpg";
+        String imagePath = "/storage/emulated/0/DCIM/Camera/IMG_20190315_151357.jpg";
+        AsyncHttpClient client = new AsyncHttpClient();
+        RequestParams params = new RequestParams();
+//        params.put("text", "some string");
+        params.put("username", "admin");
+        params.put("pass", "anallstar");
+        try {
+            params.put("image", new File(imagePath));
+        }catch (Exception e){
+            Log.d("loopjTag", "Exception!!\n"+e.getMessage() );
+        }
+
+        client.post("http://www.youtube.com", params, new TextHttpResponseHandler() {
+            @Override
+            public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, String responseString, Throwable throwable) {
+                Log.d("loopjTag", "Failed!!!!!!\n" + responseString);
+            }
+
+            @Override
+            public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, String responseString) {
+                Log.d("loopjTag", "Success!!!!!\n" + responseString);
+            }
+        });
+    }
+
+    public void loopjRequest2(){
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.post("http://192.168.43.53:8383/", new AsyncHttpResponseHandler() {
+
+            @Override
+            public void onStart() {
+                // called before request is started
+            }
+
+            @Override
+            public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, byte[] responseBody) {
+                Log.d("loopjReq2Method","Success!!");
+            }
+
+            @Override
+            public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, byte[] responseBody, Throwable error) {
+                Log.d("loopjReq2Method","Failed!!" + statusCode);
+                Log.d("loopj2",responseBody.toString());
+
+
+            }
+
+            @Override
+            public void onRetry(int retryNo) {
+                // called when request is retried
+                Log.d("loopjReq2Method","Retrying!!");
+
+            }
+        });
+    }
+}
 
 
