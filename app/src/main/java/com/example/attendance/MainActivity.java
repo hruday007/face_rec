@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.PersistableBundle;
@@ -48,15 +49,20 @@ import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
-    private static final int IMG_REQUEST = 1;
+    private static final int IMG_REQUEST = 2;
     private Button UploadBn,ChooseBn;
    private Button Capture;
     private EditText NAME;
     private ImageView imgview;
     private Uri filepath;
 
+    //image as button
+   private ImageView Buttonimg;
+    private ImageView Buttoncam;
+    private ImageView Buttonupd;
+
     private Bitmap bitmap;
-    private static final int CAM_REQUEST =3;
+    private static final int CAM_REQUEST = 1;
 
     private static final String UPLOAD_URL = "http://192.168.56.1:8383";
 
@@ -76,22 +82,55 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        UploadBn = (Button) findViewById(R.id.uploadBn);
-        ChooseBn = (Button) findViewById(R.id.chooseBn);
-        NAME = (EditText) findViewById(R.id.name);
-        imgview = (ImageView) findViewById(R.id.imageview);
-        Capture = (Button) findViewById(R.id.capture);
+        //UploadBn = (Button) findViewById(R.id.uploadBn);
+      //  ChooseBn = (Button) findViewById(R.id.chooseBn);
+       // NAME = (EditText) findViewById(R.id.name);
+    //    imgview = (ImageView) findViewById(R.id.imageview);
+    //    Capture = (Button) findViewById(R.id.capture);
 
 
 
-        ChooseBn.setOnClickListener(this);
-        UploadBn.setOnClickListener(this);
-       Capture.setOnClickListener(this);
+//        ChooseBn.setOnClickListener(this);
+//        UploadBn.setOnClickListener(this);
+//       Capture.setOnClickListener(this);
 
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 
         StrictMode.setThreadPolicy(policy);
+
+
+        //image as button
+         Buttonimg = (ImageView) findViewById(R.id.image);
+         Buttoncam = (ImageView) findViewById(R.id.cam);
+       //  Buttonupd = (ImageView) findViewById(R.id.uploadd);
+
+          Buttonimg.setOnClickListener(new View.OnClickListener() {
+              @Override
+              public void onClick(View v) {
+                  selectImage();
+
+              }
+          });
+
+
+        Buttoncam.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                captureImage();
+
+            }
+        });
+
+
+      /*  Buttonupd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+              //  ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+                post("test");
+
+            }
+        }); */
 
 
     }
@@ -121,18 +160,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId())
         {
-            case R.id.chooseBn: selectImage();
+        //    case R.id.chooseBn: selectImage();
 
-            break;
+          //  break;
 
-           case R.id.capture: captureImage();
-           break;
+         //  case R.id.capture: captureImage();
+          // break;
 
-           case R.id.uploadBn :
-               ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-               post("test");
+         //  case R.id.uploadBn :
+           //    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+             //  post("test");
 
-           break;
+           //break;
         }
     }
 
@@ -157,20 +196,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         {
             startActivityForResult(cameraIntent,CAM_REQUEST);
         //    Log.d("postTag","PAth:" + path);
-          File imageFile = null;
+       /*   File imageFile = null;
 
             try{
                 imageFile = getImageFile();
             }catch (IOException e){
                 e.printStackTrace();
             }
-
             if(imageFile!=null)
             {
                 Uri imageUri = FileProvider.getUriForFile(this,"com.example.android.fileprovider",imageFile);
                 cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT,imageUri);
                 startActivityForResult(cameraIntent,CAM_REQUEST);
-            }
+            } */
         }
      }
 
@@ -191,6 +229,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode,Intent data) {
+        Bitmap selectedphoto   = null;
         super.onActivityResult(requestCode, resultCode, data);
 
 //        if (requestCode == CAM_REQUEST && resultCode == RESULT_OK){
@@ -212,6 +251,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     imgview.setImageBitmap(bitmap);
                     imgview.setVisibility(View.VISIBLE);
                     NAME.setVisibility(View.VISIBLE);
+
+                    Uri selectedImage = data.getData();
+                    String [] filePathColumn = {MediaStore.Images.Media.DATA};
+                    Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+                    cursor.moveToFirst();
+                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                    String filePath = cursor.getString(columnIndex);
+                    selectedphoto = BitmapFactory.decodeFile(filePath);
+                   // cursor.close();
+                    Intent intent = new Intent(MainActivity.this,Main2Activity.class);
+                    intent.putExtra("data",selectedphoto);
+                    startActivity(intent);
 
 
                 } catch (IOException e) {
