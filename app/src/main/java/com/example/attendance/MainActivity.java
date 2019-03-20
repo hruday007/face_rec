@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Uri filepath;
 
     //image as button
-   private ImageView Buttonimg;
+    private ImageView Buttonimg;
     private ImageView Buttoncam;
     private ImageView Buttonupd;
 
@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //image as button
          Buttonimg = (ImageView) findViewById(R.id.image);
          Buttoncam = (ImageView) findViewById(R.id.cam);
-       //  Buttonupd = (ImageView) findViewById(R.id.uploadd);
+//        Buttonupd = (ImageView) findViewById(R.id.uploadd);
 
           Buttonimg.setOnClickListener(new View.OnClickListener() {
               @Override
@@ -179,10 +179,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //Select image from Gallery
     private void selectImage()
     {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(intent,IMG_REQUEST);
+//        Intent intent = new Intent();
+//        intent.setType("image/*");
+//        intent.setAction(Intent.ACTION_GET_CONTENT);
+//        startActivityForResult(intent,IMG_REQUEST);
+
+        Intent intent = new Intent(this, Camera.class);
+
+        startActivity(intent);
 
     }
 
@@ -226,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-
+/*
     @Override
     protected void onActivityResult(int requestCode, int resultCode,Intent data) {
         Bitmap selectedphoto   = null;
@@ -259,8 +263,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                     String filePath = cursor.getString(columnIndex);
                     selectedphoto = BitmapFactory.decodeFile(filePath);
-                   // cursor.close();
-                    Intent intent = new Intent(MainActivity.this,Main2Activity.class);
+                    cursor.close();
+                    Intent intent = new Intent(MainActivity.this,Camera.class);
                     intent.putExtra("data",selectedphoto);
                     startActivity(intent);
 
@@ -273,13 +277,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             } else if (requestCode == CAM_REQUEST && resultCode == RESULT_OK) {
                 Bundle extras = data.getExtras();
                 Bitmap bitmap = (Bitmap) extras.get("data");
-                imgview.setImageBitmap(bitmap);
-                imgview.setVisibility(View.VISIBLE);
+                ImageShow.setImageBitmap(bitmap);
+                ImageShow.setVisibility(View.VISIBLE);
+
 
             }
         }
     }
-
+*/
 
 /*
    public void uploadImg()
