@@ -192,6 +192,7 @@ public class Camera extends AppCompatActivity {
             @Override
             public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, String responseString) {
                 Log.d("loopjTagPost", "Success!!!!!\n" + responseString);
+                spinner.setVisibility(View.GONE);
                 message.setMessage("Image was posted successfully");
                 AlertDialog alert = message.create();
                 alert.show();
