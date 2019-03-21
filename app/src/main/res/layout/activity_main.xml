@@ -7,141 +7,72 @@
     android:background="@drawable/bg_login"
     tools:context=".MainActivity">
 
-    <!--To view the Selected image -->
-<!--
-  <ImageView
-       android:layout_width="wrap_content"
-       android:layout_height="wrap_content"
-       android:layout_centerHorizontal="true"
-       android:layout_marginTop="110dp"
-       android:id = "@+id/imageview"
-       android:visibility="gone"
-       android:gravity="center|bottom"/>
 
-    give a name to image
-    EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/imageview"
-        android:hint="Enter a name"
-        android:layout_marginTop="20dp"
-        android:id="@id/name"
-        android:visibility="gone"
-        />
-
-    choose a image
-    <Button
-        android:id="@+id/chooseBn"
-        android:layout_width="130dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/name"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="37dp"
-        android:layout_marginEnd="151dp"
-        android:text="Choose Image"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="151dp" />
-
-    <Button
-        android:id="@+id/capture"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/name"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
-        android:layout_marginStart="130dp"
-        android:layout_marginLeft="130dp"
-        android:layout_marginTop="89dp"
-        android:text="Capture Image" />
-
-    <upload image to server
-    <Button
-        android:id="@+id/uploadBn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/chooseBn"
-        android:layout_alignEnd="@+id/capture"
-        android:layout_marginTop="53dp"
-        android:layout_marginEnd="13dp"
-        android:text="Upload Image"
-        android:layout_alignRight="@+id/capture"
-        android:layout_marginRight="13dp" /> -->
-  <GridLayout
-      android:columnCount="2"
-      android:rowCount="3"
-      android:alignmentMode="alignMargins"
-      android:columnOrderPreserved="false"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content">
-
-<android.support.v7.widget.CardView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    app:cardElevation="6dp"
-    app:cardCornerRadius="12dp"
-    android:layout_margin="12dp"
-    android:layout_row="2"
-    android:layout_column="1">
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="16dp">
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <ImageView
-            android:id="@+id/cam"
-            android:layout_width="143dp"
-            android:layout_height="99dp"
-            android:src="@drawable/camera"
+            android:id="@+id/white_rectangle"
+            android:layout_width="313dp"
+            android:layout_height="491dp"
+            android:layout_marginStart="49dp"
+            android:layout_marginLeft="49dp"
+            android:layout_marginTop="187dp"
+            android:layout_marginEnd="49dp"
+            android:layout_marginRight="49dp"
+            android:src="@drawable/white_rectangle"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            />
         <TextView
-            android:layout_marginTop="12dp"
-            android:textColor="#6f6f6f"
-            android:textSize="18sp"
-            android:text="camera"
+            android:id="@+id/textView2"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:layout_marginEnd="76dp"
+            android:layout_marginRight="76dp"
+            android:text="Lecturer Name"
+            android:textSize="24sp"
+            android:typeface="sans"
+            app:fontFamily="sans-serif"
+            app:layout_constraintEnd_toEndOf="@+id/white_rectangle"
+            app:layout_constraintTop_toTopOf="@+id/white_rectangle" />
 
+        <Button
+            android:id="@+id/cam"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="60dp"
+            android:layout_marginRight="60dp"
+            android:layout_marginBottom="50dp"
+            android:text="Camera"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-    </LinearLayout>
-</android.support.v7.widget.CardView>
+        <Button
+            android:id="@+id/image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="60dp"
+            android:layout_marginLeft="60dp"
+            android:layout_marginBottom="50dp"
+            android:text="Gallery"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
-      <android.support.v7.widget.CardView
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_columnWeight="1"
-          app:cardElevation="6dp"
-          app:cardCornerRadius="12dp"
-          android:layout_margin="12dp">
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="100dp"
+            app:layout_constraintEnd_toEndOf="@+id/white_rectangle"
+            app:layout_constraintHorizontal_bias="0.497"
+            app:layout_constraintStart_toStartOf="@+id/white_rectangle"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/man" />
 
-          <LinearLayout
-              android:orientation="vertical"
-              android:padding="16dp"
-              android:gravity="center"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content">
-
-              <ImageView
-                  android:id="@+id/image"
-                  android:layout_width="146dp"
-                  android:layout_height="96dp"
-                  android:src="@drawable/frame" />
-              <TextView
-                  android:layout_marginTop="12dp"
-                  android:textColor="#6f6f6f"
-                  android:textSize="18sp"
-                  android:text="Gallery"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content" />
-
-
-          </LinearLayout>
-      </android.support.v7.widget.CardView>
-
-  </GridLayout>
-
-
+    </android.support.constraint.ConstraintLayout>
 </ScrollView>

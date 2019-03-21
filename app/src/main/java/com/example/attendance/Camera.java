@@ -1,21 +1,28 @@
 package com.example.attendance;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.TextHttpResponseHandler;
 
+import java.io.File;
 import java.io.IOException;
 
 public class Camera extends AppCompatActivity {
@@ -23,18 +30,25 @@ public class Camera extends AppCompatActivity {
     private Bitmap bitmap;
     private Uri filepath;
     private ImageView ImageShow;
-    private ImageView Buttonupd;
+//    private ImageView Buttonupd;
+    private Button Buttonupd;
     private static final int IMG_REQUEST = 2;
     private static final int CAM_REQUEST = 1;
+    private ProgressBar spinner;
+    int ImageChoice;
+    private String currentImagePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
 
-        Buttonupd = (ImageView) findViewById(R.id.uploadd);
+        Buttonupd = findViewById(R.id.uploadBtn);
 
         ImageShow = (ImageView) findViewById(R.id.ImageShow);
+
+        spinner = findViewById(R.id.indeterminateBar);
+        spinner.setVisibility(View.GONE);
 
         Buttonupd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,12 +59,51 @@ public class Camera extends AppCompatActivity {
         Bitmap selectedphoto = (Bitmap) this.getIntent().getParcelableExtra("data");
         ImageShow.setImageBitmap(selectedphoto);
 
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(intent, IMG_REQUEST);
+        /*****Retrieving information from previous Activity********/
+        if (savedInstanceState == null) {
+            Bundle extras = getIntent().getExtras();
+            if(extras == null) {
+                ImageChoice = 0;
+            } else {
+                ImageChoice= extras.getInt("ImageChoice");
+            }
+        } else {
+            ImageChoice = (int) savedInstanceState.getSerializable("ImageChoice");
+        }
+        /****************/
 
-        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (ImageChoice == 1) {
+            Intent intent = new Intent();
+            intent.setType("image/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(intent, IMG_REQUEST);
+        }
+
+        else if (ImageChoice == 2) {
+            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if(cameraIntent.resolveActivity(getPackageManager())!=null)
+            {
+              File imageFile = null;
+
+                try{
+                    imageFile = getImageFile();
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+                if(imageFile != null)
+                {
+                    Uri imageUri = FileProvider.getUriForFile(this,"com.example.android.fileprovider",imageFile);
+                    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                    startActivityForResult(cameraIntent,CAM_REQUEST);
+                    Log.d("ifTag","Reached" + MediaStore.EXTRA_OUTPUT);
+
+                }
+            }
+        }
+
+        else{ Log.d("imageChoiceTag","Something's Wrong"); }
+
+
 
 
     }
@@ -63,26 +116,12 @@ public class Camera extends AppCompatActivity {
         if (requestCode == IMG_REQUEST && data != null) {
             // get image from gallery and dispaly image on image view
             filepath = data.getData();
+            currentImagePath = getPath(filepath);
             try {
 
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filepath);
                 ImageShow.setImageBitmap(bitmap);
-               // ImageShow.setVisibility(View.VISIBLE);
-              //  NAME.setVisibility(View.VISIBLE);
                 ImageShow.setImageBitmap(bitmap);
-//                Uri selectedImage = data.getData();
-//                String [] filePathColumn = {MediaStore.Images.Media.DATA};
-//                Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-//                cursor.moveToFirst();
-//                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-//                String filePath = cursor.getString(columnIndex);
-//                selectedphoto = BitmapFactory.decodeFile(filePath);
-//                cursor.close();
-//               Intent intent = new Intent(Camera.this,Camera.class);
-//               intent.putExtra("data",selectedphoto);
-//               startActivity(intent);
-
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -90,48 +129,72 @@ public class Camera extends AppCompatActivity {
             // for camera request
         }
         else if (requestCode == CAM_REQUEST && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            Bitmap bitmap = (Bitmap) extras.get("data");
-            ImageShow.setImageBitmap(bitmap);
-
-            ImageShow.setImageBitmap(bitmap);
-
-
+                try {
+                    filepath = Uri.fromFile(new File(currentImagePath));
+                    bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filepath);
+                }catch (Exception e) { Log.d("TAG1","" + e.toString()); }
+                ImageShow.setImageBitmap(bitmap);
+                ImageShow.setVisibility(View.VISIBLE);
+                Log.d("TAGATA","YEP");
 
         }
-
-//
-//        bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filepath);
-//        ImageShow.setImageBitmap(bitmap);
-//        ImageShow.setImageBitmap(bitmap);
-//        ImageShow.setVisibility(View.VISIBLE);
-
     }
 
     public void post(){
+        /****Alert Messages****/
+
+        final AlertDialog.Builder message = new AlertDialog.Builder(Camera.this);
+        message.setPositiveButton(
+                "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        message.setCancelable(true);
+        /*******************/
+
+
+        spinner.setVisibility(View.VISIBLE); // Making Progress Bar visible
         //  String imagePath = "/storage/emulated/0/DCIM/Camera/IMG_20190315_151357.jpg";
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
-        String path = getPath(filepath);
+        String path = currentImagePath;
         Log.d("postTag","PAth:" + path);
-//        client.addHeader("X-CSRFToken", csrfToken);
         try {
-            //       params.put("image", new File(imagePath));
-            params.put("image",path);
+            params.put("image", new File(path));
         }catch (Exception e){
             Log.d("loopjTag", "Exception!!\n"+e.getMessage() );
         }
         params.add("key","hush!It$ a seCreT");
-//        params.put("csrfmiddlewaretoken","uUQp3O4sc621d0f5CxsazKUBFxAjCOWvGNRvwlF1HqW7b2IzqugIShxxf57JWgBh");
+        params.add("subject_name", "OS");
         client.post("http://192.168.1.119:8383/attendance/android", params, new TextHttpResponseHandler() {
             @Override
             public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, String responseString, Throwable throwable) {
                 Log.d("loopjTagPost", "Failed!!!!!!\n" + responseString);
+                spinner.setVisibility(View.GONE);
+                if (statusCode == 500)
+                    message.setMessage("No faces found in the image.Please try again.");
+                else {
+                    message.setMessage("Image could not be posted");
+                    message.setNegativeButton(
+                            "Retry",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    post();
+                                }
+                            });
+                }
+                AlertDialog alert = message.create();
+                alert.show();
             }
 
             @Override
             public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, String responseString) {
                 Log.d("loopjTagPost", "Success!!!!!\n" + responseString);
+                message.setMessage("Image was posted successfully");
+                AlertDialog alert = message.create();
+                alert.show();
             }
         });
     }
@@ -154,5 +217,16 @@ public class Camera extends AppCompatActivity {
         return path;
 
 
+    }
+
+    private File getImageFile() throws IOException
+    {
+        //  String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageName = "jpg_"+"_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File imageFile = File.createTempFile(imageName,".jpg",storageDir);
+        currentImagePath = imageFile.getAbsolutePath();
+        Log.d("getImageFileMethodTag", "Path" + currentImagePath);
+        return imageFile;
     }
 }
