@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private static final int IMG_REQUEST = 1;
     private Button UploadBn,ChooseBn;
-   private Button Capture;
+    private Button Capture;
     private EditText NAME;
     private ImageView imgview;
     private Uri filepath;
