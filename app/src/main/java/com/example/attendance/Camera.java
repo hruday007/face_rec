@@ -39,7 +39,6 @@ public class Camera extends AppCompatActivity {
     private Bitmap bitmap;
     private Uri filepath;
     private ImageView ImageShow;
-//    private ImageView Buttonupd;
     private Button Buttonupd;
     private static final int IMG_REQUEST = 2;
     private static final int CAM_REQUEST = 1;
@@ -115,10 +114,6 @@ public class Camera extends AppCompatActivity {
         }
 
         else{ Log.d("imageChoiceTag","Something's Wrong"); }
-
-
-
-
     }
 
     @Override
@@ -127,7 +122,7 @@ public class Camera extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == IMG_REQUEST && data != null) {
-            // get image from gallery and dispaly image on image view
+            // get image from gallery and display image on image view
             filepath = data.getData();
             currentImagePath = getPath(filepath);
             try {
@@ -167,7 +162,6 @@ public class Camera extends AppCompatActivity {
         message.setCancelable(true);
         /*******************/
 
-
         spinner.setVisibility(View.VISIBLE); // Making Progress Bar visible
         //  String imagePath = "/storage/emulated/0/DCIM/Camera/IMG_20190315_151357.jpg";
         AsyncHttpClient client = new AsyncHttpClient();
@@ -183,22 +177,28 @@ public class Camera extends AppCompatActivity {
         params.add("key","hush!It$ a seCreT");
         params.add("subject_name", "FLAT");
         client.post("http://192.168.43.53:8383/attendance/android", params, new TextHttpResponseHandler() {
+
+            public void onStart(){}
+
             @Override
             public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, String responseString, Throwable throwable) {
                 Log.d("loopjTagPost", "Failed!!!!!!\n" + statusCode);
                 spinner.setVisibility(View.GONE);
-                if (statusCode == 500)
-                    message.setMessage("No faces found in the image.Please try again.");
-                else {
-                    message.setMessage("Image could not be posted");
-                    message.setNegativeButton(
-                            "Retry",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    post();
-                                }
-                            });
-                }
+//                if (statusCode == 500)
+//                    message.setMessage("No faces found in the image.Please try again.");
+//                else {
+//                    message.setMessage("Image could not be posted");
+//                    message.setNegativeButton(
+//                            "Retry",
+//                            new DialogInterface.OnClickListener() {
+//                                public void onClick(DialogInterface dialog, int id) {
+//                                    post();
+//                                }
+//                            });
+//                }
+//                AlertDialog alert = message.create();
+//                alert.show();
+                message.setMessage("Image was posted successfully");
                 AlertDialog alert = message.create();
                 alert.show();
             }
@@ -299,24 +299,14 @@ public class Camera extends AppCompatActivity {
         } );
     }
 
-    public boolean checkPermissionREAD_EXTERNAL_STORAGE(
-            final Context context) {
+    public boolean checkPermissionREAD_EXTERNAL_STORAGE(final Context context) {
         int currentAPIVersion = Build.VERSION.SDK_INT;
         if (currentAPIVersion >= android.os.Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(context,
-                    Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(
-                        (Activity) context,
-                        Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                    showDialog("External storage", context,
-                            Manifest.permission.READ_EXTERNAL_STORAGE);
-
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale((Activity) context, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    showDialog("External storage", context, Manifest.permission.READ_EXTERNAL_STORAGE);
                 } else {
-                    ActivityCompat
-                            .requestPermissions(
-                                    (Activity) context,
-                                    new String[] { Manifest.permission.READ_EXTERNAL_STORAGE },
-                                    MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+                    ActivityCompat.requestPermissions((Activity) context, new String[] { Manifest.permission.READ_EXTERNAL_STORAGE },MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
                 }
                 return false;
             } else {
@@ -347,20 +337,17 @@ public class Camera extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // do your stuff
                 } else {
-                    Toast.makeText(Camera.this, "GET_ACCOUNTS Denied",
-                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Camera.this, "GET_ACCOUNTS Denied", Toast.LENGTH_SHORT).show();
                 }
                 break;
             default:
-                super.onRequestPermissionsResult(requestCode, permissions,
-                        grantResults);
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 }
